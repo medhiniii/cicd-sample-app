@@ -1,0 +1,9 @@
+{
+  "name": "cicd-sample-app",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "dependencies": {}
+}
