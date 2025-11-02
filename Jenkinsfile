@@ -30,18 +30,9 @@ pipeline {
             }
         }
 
-        stage('Push to ECR') {
+        stage('Push to ECR (skip for now)') {
             steps {
-                echo 'Pushing Docker image to AWS ECR...'
-                withAWS(region: 'ap-south-1', credentials: 'aws-creds') {
-                    script {
-                        sh '''
-                        aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 478962752033.dkr.ecr.ap-south-1.amazonaws.com
-                        docker tag cicd-sample-app:latest 478962752033.dkr.ecr.ap-south-1.amazonaws.com/cicd-sample-app:latest
-                        docker push 478962752033.dkr.ecr.ap-south-1.amazonaws.com/cicd-sample-app:latest
-                        '''
-                    }
-                }
+                echo 'Placeholder for pushing Docker image to AWS ECR...'
             }
         }
 
