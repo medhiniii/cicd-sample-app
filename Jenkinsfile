@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/medhiniii/cicd-sample-app.git'
@@ -38,8 +39,14 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 echo 'Deploying application container on EC2...'
-                sh 'docker run -d -p 3000:8080 cicd-sample-app'
+                sh '''
+                    echo "Stopping old container (if running)..."
+                    docker ps -q --filter "ancestor=cicd-sample-app" | xargs -r docker stop
+                    docker ps -a -q --filter "ancestor=cicd-sample-app" | xargs -r docker rm
 
+                    echo "Starting new container..."
+                    docker run -d -p 3000:8080 cicd-sample-app
+                '''
             }
         }
     }
