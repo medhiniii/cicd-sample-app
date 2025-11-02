@@ -38,7 +38,8 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 echo 'Deploying application container on EC2...'
-                sh 'docker run -d -p 8080:8080 cicd-sample-app'
+                sh 'docker run -d -p 3000:8080 cicd-sample-app'
+
             }
         }
     }
