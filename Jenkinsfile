@@ -101,7 +101,7 @@ pipeline {
     post {
         success {
             echo ' Pipeline completed successfully!'
-            mail to: 'youraddress@gmail.com',
+            mail to: 'medhini196@gmail.com',
                  subject: "SUCCESS: ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
                  body: """Hello Medhini,
 
@@ -114,7 +114,7 @@ View console output here: ${env.BUILD_URL}
 
         failure {
             echo ' Pipeline failed — check logs for details.'
-            mail to: 'youraddress@gmail.com',
+            mail to: 'medhini196@gmail.com',
                  subject: "FAILURE: ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
                  body: """Hello Medhini,
 
