@@ -90,8 +90,8 @@ pipeline {
                 echo 'Verifying that the deployed application is running...'
                 script {
                     sh '''
-                        sleep 10  # give container time to start
-                        curl -f http://localhost:3000 || echo " Health check failed, app may not be running correctly."
+                        sleep 10  # Give container time to start
+                        curl -f http://localhost:3000 || echo "Health check failed, app may not be running correctly."
                     '''
                 }
             }
@@ -103,28 +103,26 @@ pipeline {
             echo ' Pipeline completed successfully!'
             mail to: 'youraddress@gmail.com',
                  subject: "SUCCESS: ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
-                 body: """Hello Medhini ,
+                 body: """Hello Medhini,
 
 The Jenkins build for job '${env.JOB_NAME}' completed successfully! 🎉
 Build Number: ${env.BUILD_NUMBER}
 View console output here: ${env.BUILD_URL}
 
-Regards,
-Your Jenkins CI/CD Pipeline 🤖"""
+- Jenkins CI/CD Pipeline """
         }
 
         failure {
             echo ' Pipeline failed — check logs for details.'
             mail to: 'youraddress@gmail.com',
                  subject: "FAILURE: ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
-                 body: """Hello Medhini ,
+                 body: """Hello Medhini,
 
 The Jenkins build for job '${env.JOB_NAME}' has failed.
 Build Number: ${env.BUILD_NUMBER}
 You can review the logs here: ${env.BUILD_URL}
 
-Regards,
-Your Jenkins CI/CD Pipeline """
+- Jenkins CI/CD Pipeline"""
         }
     }
 }
