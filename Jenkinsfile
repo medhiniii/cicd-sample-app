@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_ACCOUNT_ID = '478962752033'
+        AWS_REGION = 'ap-south-1'
+        ECR_REPO_NAME = 'cicd-sample-app'
+        IMAGE_TAG = 'latest'
+    }
+
     stages {
 
         stage('Clone Repository') {
@@ -26,19 +33,19 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                sh 'docker build -t cicd-sample-app .'
+                sh 'docker build -t ${ECR_REPO_NAME}:${IMAGE_TAG} .'
             }
         }
 
         stage('Push to ECR') {
             steps {
                 echo 'Pushing Docker image to AWS ECR...'
-                withAWS(region: 'ap-south-1', credentials: 'aws-creds') {
+                withAWS(region: "${AWS_REGION}", credentials: 'aws-creds') {
                     script {
                         sh '''
-                        aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 478962752033.dkr.ecr.ap-south-1.amazonaws.com
-                        docker tag cicd-sample-app:latest 478962752033.dkr.ecr.ap-south-1.amazonaws.com/cicd-sample-app:latest
-                        docker push 478962752033.dkr.ecr.ap-south-1.amazonaws.com/cicd-sample-app:latest
+                            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                            docker tag $ECR_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG
+                            docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG
                         '''
                     }
                 }
@@ -48,14 +55,24 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 echo 'Deploying application container on EC2...'
-                sh '''
-                    echo "Stopping old container (if running)..."
-                    docker ps -q --filter "ancestor=cicd-sample-app" | xargs -r docker stop
-                    docker ps -a -q --filter "ancestor=cicd-sample-app" | xargs -r docker rm
+                withAWS(region: "${AWS_REGION}", credentials: 'aws-creds') {
+                    script {
+                        sh '''
+                            echo "Logging in to ECR..."
+                            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-                    echo "Starting new container..."
-                    docker run -d -p 3000:8080 cicd-sample-app
-                '''
+                            echo "Stopping old container (if running)..."
+                            docker ps -q --filter "name=cicd-app" | xargs -r docker stop
+                            docker ps -a -q --filter "name=cicd-app" | xargs -r docker rm
+
+                            echo "Pulling latest image from ECR..."
+                            docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG
+
+                            echo "Starting new container..."
+                            docker run -d --name cicd-app -p 3000:8080 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG
+                        '''
+                    }
+                }
             }
         }
     }
