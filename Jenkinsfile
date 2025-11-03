@@ -31,9 +31,9 @@ pipeline {
                 script {
                     sh '''
                         if [ -f package.json ]; then
-                            npm test || echo "⚠️ No tests found or tests failed — continuing pipeline."
+                            npm test || echo "No tests found or tests failed — continuing pipeline."
                         else
-                            echo "⚠️ package.json not found — skipping test stage."
+                            echo "package.json not found — skipping test stage."
                         fi
                     '''
                 }
@@ -93,7 +93,7 @@ pipeline {
                 script {
                     sh '''
                         sleep 10  # give container time to start
-                        curl -f http://localhost:3000 || echo "⚠️ Health check failed, app may not be running correctly."
+                        curl -f http://localhost:3000 || echo " Health check failed, app may not be running correctly."
                     '''
                 }
             }
